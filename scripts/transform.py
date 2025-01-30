@@ -12,7 +12,7 @@ def clean_dataframe(df):
 
 # Load the FHIR data into a DataFrame
 def transform_data(df_patient, df_condition, df_encounter):
-    # 🟢 Transform Patient Data
+    #  Transform Patient Data
     df_patient['race'] = df_patient['extension'].apply(
         lambda x: next((ext['extension'][0]['valueCoding']['display'] for ext in x
                         if ext['url'] == 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-race'), None))
@@ -43,7 +43,7 @@ def transform_data(df_patient, df_condition, df_encounter):
 
     df_patient_transformed = clean_dataframe(df_patient_transformed)
 
-    # 🟢 Transform Condition Data
+    #  Transform Condition Data
     df_condition['clinical_status'] = df_condition['clinicalStatus'].apply(
         lambda x: x.get('coding', [{}])[0].get('code') if pd.notnull(x) else None)
     df_condition['diagnosis_status'] = df_condition['verificationStatus'].apply(
@@ -69,7 +69,7 @@ def transform_data(df_patient, df_condition, df_encounter):
 
     df_condition_transformed = clean_dataframe(df_condition_transformed)
 
-    # 🟢 Transform Encounter Data
+    #  Transform Encounter Data
     df_encounter_transformed = pd.DataFrame({
         "id": df_encounter['id'],
         "status": df_encounter['status'],
