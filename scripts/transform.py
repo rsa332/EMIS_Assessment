@@ -46,28 +46,26 @@ def transform_data(df_patient, df_condition, df_encounter):
     # 🟢 Transform Condition Data
     df_condition['clinical_status'] = df_condition['clinicalStatus'].apply(
         lambda x: x.get('coding', [{}])[0].get('code') if pd.notnull(x) else None)
-    df_condition['verification_status'] = df_condition['verificationStatus'].apply(
+    df_condition['diagnosis_status'] = df_condition['verificationStatus'].apply(
         lambda x: x.get('coding', [{}])[0].get('code') if pd.notnull(x) else None)
-    df_condition['category_code'] = df_condition['category'].apply(
-        lambda x: x[0].get('coding', [{}])[0].get('code') if pd.notnull(x) else None)
-    df_condition['category_display'] = df_condition['category'].apply(
+    df_condition['condition_category_description'] = df_condition['category'].apply(
         lambda x: x[0].get('coding', [{}])[0].get('display') if pd.notnull(x) else None)
     df_condition['condition_code'] = df_condition['code'].apply(
         lambda x: x.get('coding', [{}])[0].get('code') if pd.notnull(x) else None)
-    df_condition['condition_display'] = df_condition['code'].apply(
+    df_condition['condition_description'] = df_condition['code'].apply(
         lambda x: x.get('coding', [{}])[0].get('display') if pd.notnull(x) else None)
 
-    df_condition['subject_reference'] = df_condition['subject'].apply(
+    df_condition['patient_id'] = df_condition['subject'].apply(
         lambda x: x.get('reference', '').replace('urn:uuid:', '') if pd.notnull(x) else None)
-    df_condition['encounter_reference'] = df_condition['encounter'].apply(
+    df_condition['encounter_id'] = df_condition['encounter'].apply(
         lambda x: x.get('reference', '').replace('urn:uuid:', '') if pd.notnull(x) else None)
 
-    df_condition['onset_date'] = df_condition['onsetDateTime']
-    df_condition['recorded_date'] = df_condition['recordedDate']
+    df_condition['condition_onset_date'] = df_condition['onsetDateTime']
+    df_condition['condition_recorded_date'] = df_condition['recordedDate']
 
-    df_condition_transformed = df_condition[['id', 'clinical_status', 'verification_status', 'category_code',
-                                             'category_display', 'condition_code', 'condition_display',
-                                             'subject_reference', 'encounter_reference', 'onset_date', 'recorded_date']]
+    df_condition_transformed = df_condition[['id', 'clinical_status', 'diagnosis_status',
+                                             'condition_category_description', 'condition_code', 'condition_description',
+                                             'patient_id', 'encounter_id', 'condition_onset_date', 'condition_recorded_date']]
 
     df_condition_transformed = clean_dataframe(df_condition_transformed)
 
@@ -75,21 +73,17 @@ def transform_data(df_patient, df_condition, df_encounter):
     df_encounter_transformed = pd.DataFrame({
         "id": df_encounter['id'],
         "status": df_encounter['status'],
-        "class_code": df_encounter['class'].apply(lambda x: x.get('code') if pd.notnull(x) else None),
-        "type_code": df_encounter['type'].apply(lambda x: x[0]['coding'][0]['code'] if pd.notnull(x) else None),
-        "type_display": df_encounter['type'].apply(lambda x: x[0]['coding'][0]['display'] if pd.notnull(x) else None),
-        "subject_reference": df_encounter['subject'].apply(
+        "care_setting": df_encounter['class'].apply(lambda x: x.get('code') if pd.notnull(x) else None),
+        "visit_type_code": df_encounter['type'].apply(lambda x: x[0]['coding'][0]['code'] if pd.notnull(x) else None),
+        "visit_type_description": df_encounter['type'].apply(lambda x: x[0]['coding'][0]['display'] if pd.notnull(x) else None),
+        "patient_id": df_encounter['subject'].apply(
             lambda x: x.get('reference', '').replace('urn:uuid:', '') if pd.notnull(x) else None),
-        "location_reference": df_encounter['location'].apply(
-            lambda x: x[0]['location']['reference'] if pd.notnull(x) and x else None),
-        "location_display": df_encounter['location'].apply(
+        "facility_name": df_encounter['location'].apply(
             lambda x: x[0]['location']['display'] if pd.notnull(x) and x else None),
-        "service_provider_reference": df_encounter['serviceProvider'].apply(
-            lambda x: x.get('reference') if pd.notnull(x) else None),
-        "service_provider_display": df_encounter['serviceProvider'].apply(
+        "provider_name": df_encounter['serviceProvider'].apply(
             lambda x: x.get('display') if pd.notnull(x) else None),
-        "period_start": df_encounter['period'].apply(lambda x: x.get('start') if pd.notnull(x) else None),
-        "period_end": df_encounter['period'].apply(lambda x: x.get('end') if pd.notnull(x) else None),
+        "visit_start_time": df_encounter['period'].apply(lambda x: x.get('start') if pd.notnull(x) else None),
+        "visit_end_time": df_encounter['period'].apply(lambda x: x.get('end') if pd.notnull(x) else None),
     })
 
     df_encounter_transformed = clean_dataframe(df_encounter_transformed)

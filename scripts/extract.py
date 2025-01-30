@@ -32,5 +32,3 @@ def extract_data():
     df_encounter = pd.DataFrame(resource_data.get('Encounter', []))
 
     return df_patient, df_condition, df_encounter
-
-    print(f"Extraction complete. Processed data saved in '{output_folder}'.")
